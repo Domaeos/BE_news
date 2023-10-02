@@ -15,9 +15,6 @@ async function getTopics(req, res, next) {
 async function getArticle(req, res, next) {
     try {
         const article = await getArticleModel(req.params.articleID);
-        if (!article.length) {
-            throw ({ code: 404 });
-        }
         res.status(200).send({article});
     } catch (err) {
         next(err);

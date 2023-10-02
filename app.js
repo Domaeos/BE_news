@@ -17,7 +17,7 @@ app.all("/*", (request, response) => {
 })
 
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) => {  
     if(err.code === 404) {
         res.status(404).send({message: "No match found"});
     }

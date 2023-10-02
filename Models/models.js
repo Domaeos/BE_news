@@ -9,7 +9,10 @@ async function getTopicsModel() {
 
 async function getArticleModel(articleID) {
     const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
-    return results;
+    if(!results.length) {
+        throw({code: 404})
+    }
+    return results;     
 }
 async function getApiModel() {
     const documentation = await fs.readFile(__dirname + "/../endpoints.json", "utf-8");
