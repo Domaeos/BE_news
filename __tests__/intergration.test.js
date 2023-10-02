@@ -70,12 +70,39 @@ describe("GET /api", () => {
     test("each API property should be correct type", () => {
         return request(app).get("/api").expect(200).then(result => {
             const returnObj = result.body.API;
-            console.log(returnObj);
             for (const key in returnObj) {
                 expect(typeof returnObj[key].description).toBe("string")
                 expect(Array.isArray(returnObj[key].queries)).toBe(true)
                 expect(typeof returnObj[key].exampleResponse).toBe("object")
             }
         })
+    })
+});
+describe("Get article API", () => {
+    test("Should return status 200 if article exists", () => {
+        return request(app).get("/api/articles/2").expect(200);
+    })
+    test("If article ID exists should return the article object found", () => {
+        return request(app).get("/api/articles/2").expect(200).then(result => {
+            const returnObj = result.body.article[0];
+            expect(typeof returnObj.author).toBe("string");
+            expect(typeof returnObj.title).toBe("string");
+            expect(typeof returnObj.body).toBe("string");
+            expect(typeof returnObj.topic).toBe("string");
+            expect(typeof returnObj.created_at).toBe("string");
+            expect(typeof returnObj.article_img_url).toBe("string");
+            expect(typeof returnObj.article_id).toBe("number");
+            expect(typeof returnObj.votes).toBe("number");
+        })
+    })
+    test("If no match found should return 404 error with message not found", () => {
+        return request(app).get("/api/articles/9999999").expect(404).then(result => {
+            expect(result.body.message).toBe("No match found");
+        });
+    })
+    test("If passed an invalid search paramater, returns a 400 bad request error", () => {
+        return request(app).get("/api/articles/fifty").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request");
+        });
     })
 });
