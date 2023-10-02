@@ -1,3 +1,7 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+You will need to create two .env files:
+.env.test
+.env.development
+
+These will point to two different databases using (PGDatabase=**Your DataBase Names Here**) to differentiate between development data and test data.
