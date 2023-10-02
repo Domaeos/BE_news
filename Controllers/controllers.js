@@ -1,12 +1,24 @@
 const {
     getTopicsModel,
-    getApiModel
+    getApiModel,
+    getArticleModel
 } = require('../Models/models');
 
 async function getTopics(req, res, next) {
     try {
         const topics = await getTopicsModel();
         res.status(200).send({ topics });
+    } catch (err) {
+        next(err);
+    }
+}
+async function getArticle(req, res, next) {
+    try {
+        const article = await getArticleModel(req.params.articleID);
+        if (!article.length) {
+            throw ({ code: 404 });
+        }
+        res.status(200).send({article});
     } catch (err) {
         next(err);
     }
@@ -21,7 +33,10 @@ async function getApi(req, res, next) {
     }
 }
 
+
+
 module.exports = {
     getTopics,
-    getApi
+    getApi,
+    getArticle
 }
