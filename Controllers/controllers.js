@@ -1,6 +1,7 @@
 const {
     getTopicsModel,
-    getApiModel
+    getApiModel,
+    getAllArticlesModel,
 } = require('../Models/models');
 
 async function getTopics(req, res, next) {
@@ -11,7 +12,14 @@ async function getTopics(req, res, next) {
         next(err);
     }
 }
-
+async function getAllArticles(req, res, next) {
+    try {
+        const articles = await getAllArticlesModel();
+        res.status(200).send({articles});
+    } catch(err) {
+        next(err);
+    }
+}
 async function getApi(req, res, next) {
     try {
         const documentation = await getApiModel();
@@ -23,5 +31,6 @@ async function getApi(req, res, next) {
 
 module.exports = {
     getTopics,
-    getApi
+    getApi,
+    getAllArticles
 }
