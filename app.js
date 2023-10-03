@@ -13,22 +13,24 @@ app.get("/api", getApi)
 app.get("/api/articles/:article_id/comments", getComments)
 
 app.all("/*", (request, response) => {
-    response.status(404).send({message: "Not found"})
+    response.status(404).send({ message: "Not found" })
 })
 
 app.use((err, req, res, next) => {
-    if(err.code === "22P02") {
-        res.status(400).send({message: "Bad request"})
+    if (err.code === "22P02") {
+        res.status(400).send({ message: "Bad request" })
+    } else {
+        next(err);
     }
-    next(err);
 })
 app.use((err, req, res, next) => {
-    if(err.code === 404) {
-        res.status(404).send({message: "Match not found"})
-    }
-    next(err);
+    if (err.code === 404) {
+        res.status(404).send({ message: "Match not found" })
+    } else {
+        next(err);
+    }   
 })
 app.use((err, req, res, next) => {
-    res.status(500).send({message: "Internal server error"});
+    res.status(500).send({ message: "Internal server error" });
 })
 module.exports = app;

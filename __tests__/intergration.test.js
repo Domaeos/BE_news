@@ -93,13 +93,13 @@ describe.only("GET /api/articles/:id/comments", () => {
     test("Each comment object in the return array should have correct properties", () => {
         return request(app).get("/api/articles/1/comments").expect(200).then(result => {
             const returnArray = result.body.comments;
+            expect(returnArray.length).toBe(11);
             for (const index in returnArray) {
                 expect(typeof returnArray[index].comment_id).toBe("number");
                 expect(typeof returnArray[index].votes).toBe("number");
                 expect(typeof returnArray[index].created_at).toBe("string");
                 expect(typeof returnArray[index].author).toBe("string");
                 expect(typeof returnArray[index].body).toBe("string");
-                expect(typeof returnArray[index].article_id).toBe("number");
                 expect(returnArray[index].article_id).toBe(1);
             }
         })
