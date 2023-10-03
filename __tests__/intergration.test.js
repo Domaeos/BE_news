@@ -78,6 +78,48 @@ describe("GET /api", () => {
         })
     })
 });
+describe("get all articles endpoint", () => {
+    test("Should return a 200 status code", () => {
+        return request(app).get("/api/articles/").expect(200);
+    })
+    test("Should return an array in property 'articles'", () => {
+        return request(app).get("/api/articles/").expect(200).then(result => {
+            expect(result.body).hasOwnProperty("articles");
+            expect(Array.isArray(result.body.articles)).toBe(true);
+        })
+    })
+    // test here for expected length of returnArray 
+    test("Should return each article with correct properties", () => {
+        return request(app).get("/api/articles/").expect(200).then(result => {
+            const resultArray = result.body.articles;
+            expect(resultArray.length).toBe(13)
+            resultArray.forEach(article => {
+                expect(typeof article.article_id).toBe("number")
+                expect(typeof article.author).toBe("string")
+                expect(typeof article.title).toBe("string")
+                expect(typeof article.comment_count).toBe("string");
+                expect(typeof article.topic).toBe("string")
+                expect(typeof article.created_at).toBe("string")
+                expect(typeof article.votes).toBe("number")
+                expect(typeof article.article_img_url).toBe("string")
+                expect(article).not.hasOwnProperty("body");
+            })
+        });
+    })
+    test("Should return the correct amount of comments for an article", () => {
+        return request(app).get("/api/articles/").expect(200).then(result => {
+            const resultArray = result.body.articles;
+            const article5 = resultArray.find(article => article.article_id === 5);
+            expect(+article5.comment_count).toBe(2);
+        });
+    })
+    test("Should be sorted by created_at in descending order", () => {
+        return request(app).get("/api/articles/").expect(200).then(result => {
+            const resultArray = result.body.articles;
+            expect(resultArray).toBeSorted({ key: 'created_at', descending: true });
+        });
+    })
+})
 describe("Get article API", () => {
     test("Should return status 200 if article exists", () => {
         return request(app).get("/api/articles/2").expect(200);

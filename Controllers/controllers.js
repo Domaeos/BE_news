@@ -1,6 +1,7 @@
 const {
     getTopicsModel,
     getApiModel,
+    getAllArticlesModel,
     getArticleModel
 } = require('../Models/models');
 
@@ -12,6 +13,16 @@ async function getTopics(req, res, next) {
         next(err);
     }
 }
+
+async function getAllArticles(req, res, next) {
+    try {
+        const articles = await getAllArticlesModel(req);
+        res.status(200).send({articles});
+    } catch(err) {
+        next(err);
+    }
+}
+
 async function getArticle(req, res, next) {
     try {
         const article = await getArticleModel(req.params.articleID);
@@ -20,6 +31,7 @@ async function getArticle(req, res, next) {
         next(err);
     }
 }
+
 
 async function getApi(req, res, next) {
     try {
@@ -35,5 +47,6 @@ async function getApi(req, res, next) {
 module.exports = {
     getTopics,
     getApi,
+    getAllArticles,
     getArticle
 }
