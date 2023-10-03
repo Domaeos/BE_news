@@ -78,6 +78,48 @@ describe("GET /api", () => {
         })
     })
 });
+describe("GET /api/articles/:id/comments", () => {
+    test("Should return 200 status when passed an article ID with comments", () => {
+        return request(app).get("/api/articles/1/comments").expect(200);
+    })
+    test("Should return an object with comments property containing an array of results", () => {
+        return request(app).get("/api/articles/1/comments").expect(200).then(result => {
+            const returnObj = result.body;
+            expect(returnObj).hasOwnProperty("comments");
+            expect(Array.isArray(returnObj.comments)).toBe(true);
+        })
+    })
+    test("Each comment object in the return array should have correct properties", () => {
+        return request(app).get("/api/articles/1/comments").expect(200).then(result => {
+            const returnArray = result.body.comments;
+            expect(returnArray.length).toBe(11);
+            for (const index in returnArray) {
+                expect(typeof returnArray[index].comment_id).toBe("number");
+                expect(typeof returnArray[index].votes).toBe("number");
+                expect(typeof returnArray[index].created_at).toBe("string");
+                expect(typeof returnArray[index].author).toBe("string");
+                expect(typeof returnArray[index].body).toBe("string");
+                expect(returnArray[index].article_id).toBe(1);
+            }
+        })
+    })
+    test("When returned comments in array should be sorted by created_at ascending (newest first)", () => {
+        return request(app).get("/api/articles/1/comments").expect(200).then(result => {
+            const returnArray = result.body.comments;
+            expect(returnArray).toBeSorted({key: 'created_at'})
+        })
+    })
+    test("Given an invalid id type should return error: 400 bad request", () => {
+        return request(app).get("/api/articles/text/comments").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request");
+        })
+    })
+    test("If no matches found for a given ID, return 404 match not found error", () => {
+        return request(app).get("/api/articles/999/comments").expect(404).then(result => {
+            expect(result.body.message).toBe("Match not found");
+        })
+    })
+})
 describe("get all articles endpoint", () => {
     test("Should return a 200 status code", () => {
         return request(app).get("/api/articles/").expect(200);
