@@ -18,9 +18,6 @@ async function getAllArticlesModel() {
 articles.votes, articles.title, articles.article_img_url,
 COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;
     `);
-    if (!results.rows.length) {
-        throw({code: 404});
-    }
     return results.rows;
 }
 module.exports = {

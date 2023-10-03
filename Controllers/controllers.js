@@ -14,7 +14,7 @@ async function getTopics(req, res, next) {
 }
 async function getAllArticles(req, res, next) {
     try {
-        const articles = await getAllArticlesModel();
+        const articles = await getAllArticlesModel(req);
         res.status(200).send({articles});
     } catch(err) {
         next(err);

@@ -13,10 +13,16 @@ app.get("/api", getApi)
 app.get("/api/articles", getAllArticles)
 
 app.all("/*", (request, response) => {
-    response.status(404).send({message: "Not found"})
+    response.status(404).send({ message: "Not found" })
 })
 
 app.use((err, req, res, next) => {
-    res.status(500).send({message: "Internal server error"});
+    if (err.code === 404) {
+        response.status(404)
+        .send({message: `No matches found in ` + (req.url)})
+    }
+})
+app.use((err, req, res, next) => {
+    res.status(500).send({ message: "Internal server error" });
 })
 module.exports = app;
