@@ -2,7 +2,9 @@ const express = require('express');
 const {
     getTopics,
     getApi,
-    getComments
+    getComments,
+    getAllArticles,
+    getArticle,
 } = require('./Controllers/controllers');
 
 const app = express();
@@ -11,10 +13,13 @@ const app = express();
 app.get("/api/topics", getTopics)
 app.get("/api", getApi)
 app.get("/api/articles/:article_id/comments", getComments)
+app.get("/api/articles", getAllArticles)
+app.get("/api/articles/:articleID", getArticle)
 
 app.all("/*", (request, response) => {
     response.status(404).send({ message: "Not found" })
 })
+
 
 app.use((err, req, res, next) => {
     if (err.code === "22P02") {
