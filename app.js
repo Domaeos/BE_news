@@ -21,6 +21,7 @@ app.use((err, req, res, next) => {
         response.status(404)
         .send({message: `No matches found in ` + (req.url)})
     }
+    next(err);
 })
 app.use((err, req, res, next) => {
     res.status(500).send({ message: "Internal server error" });
