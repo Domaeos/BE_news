@@ -7,6 +7,13 @@ async function getTopicsModel() {
     return topics;
 }
 
+async function getArticleModel(articleID) {
+    const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
+    if(!results.length) {
+        throw({code: 404})
+    }
+    return results;     
+}
 async function getApiModel() {
     const documentation = await fs.readFile(__dirname + "/../endpoints.json", "utf-8");
     return JSON.parse(documentation);
@@ -23,5 +30,6 @@ COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON 
 module.exports = {
     getTopicsModel,
     getApiModel,
-    getAllArticlesModel
+    getAllArticlesModel,
+    getArticleModel
 }
