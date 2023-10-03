@@ -114,13 +114,13 @@ describe("GET /api/articles/:id/comments", () => {
             expect(result.body.message).toBe("Bad request");
         })
     })
-    test("If no matches found for a given ID, return 404 match not found error", () => {
+    test("If no matches found for a given ID, return 404 no match found error", () => {
         return request(app).get("/api/articles/999/comments").expect(404).then(result => {
             expect(result.body.message).toBe("Match not found");
         })
     })
 })
-describe("get all articles endpoint", () => {
+describe("GET /api/articles/", () => {
     test("Should return a 200 status code", () => {
         return request(app).get("/api/articles/").expect(200);
     })
@@ -162,7 +162,7 @@ describe("get all articles endpoint", () => {
         });
     })
 })
-describe("Get article API", () => {
+describe("GET /api", () => {
     test("Should return status 200 if article exists", () => {
         return request(app).get("/api/articles/2").expect(200);
     })
@@ -181,7 +181,7 @@ describe("Get article API", () => {
     })
     test("If no match found should return 404 error with message not found", () => {
         return request(app).get("/api/articles/9999999").expect(404).then(result => {
-            expect(result.body.message).toBe("No match found");
+            expect(result.body.message).toBe("Match not found");
         });
     })
     test("If passed an invalid search paramater, returns a 400 bad request error", () => {
