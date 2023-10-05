@@ -15,6 +15,16 @@ async function getArticleModel(articleID) {
     return results;     
 }
 
+async function deleteCommentModel(commentID) {
+    const result = await db.query(`
+      DELETE FROM comments
+      WHERE comment_id = $1;
+    `,[commentID]);
+    if (!result.rowCount) {
+        throw({code: "22P02"})
+    }
+}
+
 async function getApiModel() {
     const documentation = await fs.readFile(__dirname + "/../endpoints.json", "utf-8");
     return JSON.parse(documentation);
@@ -42,5 +52,6 @@ module.exports = {
     getApiModel,
     getCommentsModel,
     getAllArticlesModel,
-    getArticleModel
+    getArticleModel,
+    deleteCommentModel
 }
