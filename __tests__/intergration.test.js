@@ -120,7 +120,7 @@ describe("GET /api/articles/:id/comments", () => {
         })
     })
 })
-describe.only("GET /api/articles/", () => {
+describe("GET /api/articles/", () => {
     test("Should return a 200 status code", () => {
         return request(app).get("/api/articles/").expect(200);
     })
