@@ -4,7 +4,8 @@ const {
     getCommentsModel,
     getAllArticlesModel,
     getArticleModel,
-    getUsersModel
+    getUsersModel,
+    deleteCommentModel
 } = require('../Models/models');
 
 async function getTopics(req, res, next) {
@@ -28,6 +29,14 @@ async function getComments(req, res, next) {
     try {
         const comments = await getCommentsModel(req.params.article_id);
         res.status(200).send({ comments });
+    } catch (err) {
+        next(err);
+    }
+}
+async function deleteComment(req, res, next) {
+    try {
+        await deleteCommentModel(req.params.commentID);
+        res.status(204).send();
     } catch (err) {
         next(err);
     }
@@ -68,5 +77,6 @@ module.exports = {
     getComments,
     getAllArticles,
     getArticle,
-    getUsers
+    getUsers,
+    deleteComment
 }

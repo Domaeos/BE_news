@@ -189,6 +189,7 @@ describe("GET /api", () => {
         });
     })
 });
+
 describe("GET /api/users", () => {
     test("Should return a status code of 200", () => {
         return request(app).get("/api/users").expect(200);
@@ -212,5 +213,21 @@ describe("GET /api/users", () => {
                 expect(typeof user.avatar_url).toBe("string")
             }
         })
+    })
+})
+
+describe("DELETE /api/comments/:commentID", () => {
+    test ("Should return a bad request if no correct comment ID given", () => {
+        return request(app).delete("/api/comments/fifty").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        });
+    })
+    test("Should return bad request if no comment with the ID passed is found", () => {
+        return request(app).delete("/api/comments/9999999").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        });
+    })
+    test("Should return status 204 on successful deletion", () => {
+        return request(app).delete("/api/comments/2").expect(204);  
     })
 })

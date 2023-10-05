@@ -5,7 +5,8 @@ const {
     getComments,
     getAllArticles,
     getArticle,
-    getUsers
+    getUsers,
+    deleteComment
 } = require('./Controllers/controllers');
 
 const app = express();
@@ -17,6 +18,7 @@ app.get("/api/articles/:article_id/comments", getComments)
 app.get("/api/articles", getAllArticles)
 app.get("/api/articles/:articleID", getArticle)
 app.get("/api/users", getUsers)
+app.delete("/api/comments/:commentID", deleteComment)
 
 app.all("/*", (request, response) => {
     response.status(404).send({ message: "Not found" })
