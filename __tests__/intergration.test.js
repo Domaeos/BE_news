@@ -130,7 +130,6 @@ describe("GET /api/articles/", () => {
             expect(Array.isArray(result.body.articles)).toBe(true);
         })
     })
-    // test here for expected length of returnArray 
     test("Should return each article with correct properties", () => {
         return request(app).get("/api/articles/").expect(200).then(result => {
             const resultArray = result.body.articles;
@@ -190,3 +189,28 @@ describe("GET /api", () => {
         });
     })
 });
+describe("GET /api/users", () => {
+    test("Should return a status code of 200", () => {
+        return request(app).get("/api/users").expect(200);
+    })
+    test("Should return an object with property users", () => {
+        return request(app).get("/api/users").expect(200).then(result => {
+            expect(result.body).hasOwnProperty("users");
+        })
+    })
+    test("Users property should contain an array object with correct length of users", () => {
+        return request(app).get("/api/users").expect(200).then(result => {
+            expect(Array.isArray(result.body.users)).toBe(true);
+            expect(result.body.users.length).toBe(4);
+        })
+    })
+    test("Elements in returned array should contain an object with username, name, avatar_url", () => {
+        return request(app).get("/api/users").expect(200).then(result => {
+            for (const user of result.body.users) {
+                expect(typeof user.username).toBe("string")
+                expect(typeof user.name).toBe("string")
+                expect(typeof user.avatar_url).toBe("string")
+            }
+        })
+    })
+})

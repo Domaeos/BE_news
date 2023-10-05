@@ -6,6 +6,10 @@ async function getTopicsModel() {
     const { rows: topics } = await db.query("SELECT slug, description FROM topics;")
     return topics;
 }
+async function getUsersModel() {
+    const results = await db.query("SELECT * FROM users;")
+    return results.rows;
+}
 
 async function getArticleModel(articleID) {
     const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
@@ -42,5 +46,6 @@ module.exports = {
     getApiModel,
     getCommentsModel,
     getAllArticlesModel,
-    getArticleModel
+    getArticleModel,
+    getUsersModel
 }
