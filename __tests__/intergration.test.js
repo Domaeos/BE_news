@@ -130,7 +130,6 @@ describe("GET /api/articles/", () => {
             expect(Array.isArray(result.body.articles)).toBe(true);
         })
     })
-    // test here for expected length of returnArray 
     test("Should return each article with correct properties", () => {
         return request(app).get("/api/articles/").expect(200).then(result => {
             const resultArray = result.body.articles;
@@ -190,7 +189,8 @@ describe("GET /api", () => {
         });
     })
 });
-describe.only("Get article by ID API", () => {
+
+describe("Get article by ID API", () => {
     test("Should return status 200 if article exists", () => {
         return request(app).get("/api/articles/2").expect(200);
     })
@@ -230,3 +230,20 @@ describe.only("Get article by ID API", () => {
         })
     })
 });
+
+describe("DELETE /api/comments/:commentID", () => {
+    test ("Should return a bad request if no correct comment ID given", () => {
+        return request(app).delete("/api/comments/fifty").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        });
+    })
+    test("Should return bad request if no comment with the ID passed is found", () => {
+        return request(app).delete("/api/comments/9999999").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        });
+    })
+    test("Should return status 204 on successful deletion", () => {
+        return request(app).delete("/api/comments/2").expect(204);  
+    })
+})
+
