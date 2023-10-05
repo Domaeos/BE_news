@@ -10,10 +10,6 @@ async function getTopicsModel() {
 }
 
 async function patchArticleModel(articleID, incCount) {
-    const articleQuery = await db.query('SELECT * FROM articles WHERE article_id=$1;', [articleID])
-    if (!articleQuery.rowCount) {
-        throw ({ code: "NOARTICLE" });
-    }
     if (incCount === undefined) {
         throw ({ code: "BAD_R" });
     }
@@ -22,10 +18,13 @@ async function patchArticleModel(articleID, incCount) {
         UPDATE articles
         SET votes = votes + $2
         WHERE article_id = $1
-        RETURNING *;
+        RETURNING *;    
       `,
         [articleID, incCount]
     )
+    if (result.rowCount === 0) {
+        throw({code: "NOARTICLE"})
+    }
     return result.rows[0];
 }
 
@@ -43,15 +42,11 @@ async function postCommentModel(articleID, commentObj) {
     if (!userQuery.rowCount) {
         throw ({ code: "NOUSER" });
     }
-    const articleQuery = await db.query('SELECT * FROM articles WHERE article_id=$1;', [articleID])
-    if (!articleQuery.rowCount) {
-        throw ({ code: "NOARTICLE" });
-    }
-    const { rows: comment } = await db.query(`
+    const result = await db.query(`
     INSERT INTO comments (article_id, body, author)
     VALUES ($1, $2, $3) RETURNING *;
     `, [articleID, body, username])
-    return comment;
+    return result.rows;
 }
 
 async function getApiModel() {

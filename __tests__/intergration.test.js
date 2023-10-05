@@ -196,7 +196,7 @@ describe("POST /api/articles/:articleID/comments", () => {
             username: "ryan",
             body: "a comment again"
         }
-        return request(app).post('/api/articles/1/comments').send(testComment).expect(400).then(result => {
+        return request(app).post('/api/articles/1/comments').send(testComment).expect(404).then(result => {
             expect(result.body.message).toBe("Invalid username")
         });
     })
@@ -206,7 +206,7 @@ describe("POST /api/articles/:articleID/comments", () => {
             body: "a comment again"
         }
         return request(app).post('/api/articles/99999/comments').send(testComment).expect(404).then(result => {
-            expect(result.body.message).toBe("No article with this ID")
+            expect(result.body.message).toBe(`Key (article_id)=(99999) is not present in table \"articles\".`)
         });
     })
     test("Should return 400 bad request if comment object passed is invalid", () => {
@@ -234,6 +234,20 @@ describe("POST /api/articles/:articleID/comments", () => {
         });
     })
 })
+test("Should ignore any extra properties sent", () => {
+    const testComment = {
+        username: "rogersop",
+        body: "a comment again",
+        randomProp: 2,
+        anotherRandomExrtaProp: "text"
+    }
+    return request(app).post('/api/articles/2/comments').send(testComment).expect(201).then(result => {
+        const comment = result.body.comment[0];
+        expect(comment).not.hasOwnProperty("randomProp"),
+        expect(comment).not.hasOwnProperty("anotherRandomExtraProp")
+    });
+})
+
 
 describe('PATCH /api/articles/:articleID', () => {
     test('should return a database-updated article with incremented votes ', () => {
@@ -242,7 +256,7 @@ describe('PATCH /api/articles/:articleID', () => {
         }
         return request(app).patch("/api/articles/2").send(testVote).expect(200).then(result => {
             const article= result.body.article;
-            expect(typeof article.article_id).toBe("number")
+            expect(article.article_id).toBe(2)
             expect(typeof article.author).toBe("string")
             expect(typeof article.title).toBe("string")
             expect(typeof article.topic).toBe("string")
@@ -263,7 +277,7 @@ describe('PATCH /api/articles/:articleID', () => {
             vote_increment: 3
         }
         return request(app).patch("/api/articles/99999").send(testVote).expect(404).then(result => {
-            expect(result.body.message).toBe("No article with this ID");
+            expect(result.body.message).toBe(`No matching article found`);
         })
     })
 });

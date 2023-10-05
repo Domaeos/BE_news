@@ -34,21 +34,29 @@ app.use((err, req, res, next) => {
 })
 app.use((err, req, res, next) => {
     if (err.code === "NOUSER") {
-        res.status(400).send({ message: "Invalid username" })
+        res.status(404).send({ message: "Invalid username" })
     } else {
         next(err);
     }
 });
 app.use((err, req, res, next) => {
     if (err.code === "NOARTICLE") {
-        res.status(404).send({ message: "No article with this ID" })
+        res.status(404).send({ message: "No matching article found" })
     } else {
         next(err);
     }
 });
+
 app.use((err, req, res, next) => {
     if (err.code === "22P02" || err.code === "23502") {
         res.status(400).send({ message: "Bad request" })
+    } else {
+        next(err);
+    }
+})
+app.use((err, req, res, next) => {
+    if (err.code === "23503") {
+        res.status(404).send({ message: err.detail})
     } else {
         next(err);
     }
