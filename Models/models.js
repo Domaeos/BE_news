@@ -12,7 +12,11 @@ async function getUsersModel() {
 }
 
 async function getArticleModel(articleID) {
-    const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
+    const { rows: results } = await db.query(`
+    SELECT articles.*,
+    COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id ORDER BY articles.created_at DESC;
+        `
+        , [articleID]);
     if(!results.length) {
         throw({code: 404})
     }

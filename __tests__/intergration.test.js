@@ -190,6 +190,47 @@ describe("GET /api", () => {
     })
 });
 
+describe("Get article by ID API", () => {
+    test("Should return status 200 if article exists", () => {
+        return request(app).get("/api/articles/2").expect(200);
+    })
+    test("If article ID exists should return the article object found", () => {
+        return request(app).get("/api/articles/2").expect(200).then(result => {
+            const returnObj = result.body.article[0];
+            expect(typeof returnObj.author).toBe("string");
+            expect(typeof returnObj.title).toBe("string");
+            expect(typeof returnObj.body).toBe("string");
+            expect(typeof returnObj.topic).toBe("string");
+            expect(typeof returnObj.created_at).toBe("string");
+            expect(typeof returnObj.article_img_url).toBe("string");
+            expect(typeof returnObj.article_id).toBe("number");
+            expect(typeof returnObj.votes).toBe("number");
+        })
+    })
+    test("If no match found should return 404 error with message not found", () => {
+        return request(app).get("/api/articles/9999999").expect(404).then(result => {
+            expect(result.body.message).toBe("Match not found");
+        });
+    })
+    test("If passed an invalid search paramater, returns a 400 bad request error", () => {
+        return request(app).get("/api/articles/fifty").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request");
+        });
+    })
+    describe("Add comment count to get article by ID", () => {
+        test("Return objects should have a comment_count property", () => {
+            return request(app).get("/api/articles/2").expect(200).then(result => {
+                expect(result.body.article).hasOwnProperty("comment_count");
+            });
+        })
+        test("Article should have the correct number of comments", () => {
+            return request(app).get("/api/articles/1").expect(200).then(result => {
+                expect(+result.body.article[0].comment_count).toBe(11);
+            });
+        })
+    })
+});
+
 describe("GET /api/users", () => {
     test("Should return a status code of 200", () => {
         return request(app).get("/api/users").expect(200);
@@ -216,6 +257,7 @@ describe("GET /api/users", () => {
     })
 })
 
+
 describe("DELETE /api/comments/:commentID", () => {
     test ("Should return a bad request if no correct comment ID given", () => {
         return request(app).delete("/api/comments/fifty").expect(400).then(result => {
@@ -231,3 +273,4 @@ describe("DELETE /api/comments/:commentID", () => {
         return request(app).delete("/api/comments/2").expect(204);  
     })
 })
+
