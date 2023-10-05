@@ -1,6 +1,8 @@
 const db = require('../db/connection');
 const documentation = require('../endpoints.json');
 const fs = require('fs/promises');
+const format = require('pg-format');
+const convertTimestampToDate = require('../db/seeds/utils');
 
 async function getTopicsModel() {
     const { rows: topics } = await db.query("SELECT slug, description FROM topics;")
@@ -9,10 +11,15 @@ async function getTopicsModel() {
 
 async function getArticleModel(articleID) {
     const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
-    if(!results.length) {
-        throw({code: 404})
+    if (!results.length) {
+        throw ({ code: 404 })
     }
-    return results;     
+    return results;
+}
+
+async function postCommentModel(articleID, commentObj) {
+    console.log(articleID, commentObj);
+    return 0;
 }
 
 async function getApiModel() {
@@ -21,7 +28,7 @@ async function getApiModel() {
 }
 async function getCommentsModel(articleID) {
     const { rows: comments } = await db.query
-    ("SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at;", [articleID])
+        ("SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at;", [articleID])
     if (!comments.length) {
         throw ({ code: 404 })
     }
@@ -42,5 +49,6 @@ module.exports = {
     getApiModel,
     getCommentsModel,
     getAllArticlesModel,
-    getArticleModel
+    getArticleModel,
+    postCommentModel
 }

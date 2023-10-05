@@ -189,4 +189,13 @@ describe("GET /api", () => {
             expect(result.body.message).toBe("Bad request");
         });
     })
-});
+})
+describe("POST /api/articles/:articleID/comments", () => {
+    test("Should return a 201 status when passed a correct comment object", () => {
+        const testComment = {
+            username: "rogersop",
+            body: "a comment again"
+        }
+        return request(app).post('/api/articles/1/comments').send(testComment).expect(201);
+    })
+})

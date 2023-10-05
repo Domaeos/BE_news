@@ -3,7 +3,8 @@ const {
     getApiModel,
     getCommentsModel,
     getAllArticlesModel,
-    getArticleModel
+    getArticleModel,
+    postCommentModel
 } = require('../Models/models');
 
 async function getTopics(req, res, next) {
@@ -13,22 +14,31 @@ async function getTopics(req, res, next) {
     } catch (err) {
         next(err);
     }
-}
+}w
+async function postComment(req, res, next) {
+    try {
+        console.log("controller");
+        console.log(req.params.articleID);
+        console.log(req.body)
+        res.status(201).send();
+    } catch (err) {
 
+    }
+}
 async function getComments(req, res, next) {
     try {
-        const comments = await getCommentsModel(req.params.article_id);
+        const comments = await getCommentsModel(req.params.article_id, req.body);
         res.status(200).send({ comments });
-    } catch(err) {
-      next(err);
+    } catch (err) {
+        next(err);
     }
 }
 
 async function getAllArticles(req, res, next) {
     try {
         const articles = await getAllArticlesModel(req);
-        res.status(200).send({articles});
-    } catch(err) {
+        res.status(200).send({  warticles });
+    } catch (err) {
         next(err);
     }
 }
@@ -36,7 +46,7 @@ async function getAllArticles(req, res, next) {
 async function getArticle(req, res, next) {
     try {
         const article = await getArticleModel(req.params.articleID);
-        res.status(200).send({article});
+        res.status(200).send({ article });
     } catch (err) {
         next(err);
     }
@@ -59,4 +69,5 @@ module.exports = {
     getComments,
     getAllArticles,
     getArticle,
+    postComment
 }
