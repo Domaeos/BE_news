@@ -4,6 +4,7 @@ const {
     getCommentsModel,
     getAllArticlesModel,
     getArticleModel,
+    getUsersModel,
     deleteCommentModel
 } = require('../Models/models');
 
@@ -11,6 +12,14 @@ async function getTopics(req, res, next) {
     try {
         const topics = await getTopicsModel();
         res.status(200).send({ topics });
+    } catch (err) {
+        next(err);
+    }
+}
+async function getUsers(req, res, next) {
+    try {
+        const users = await getUsersModel();
+        res.status(200).send({users});
     } catch (err) {
         next(err);
     }
@@ -68,5 +77,6 @@ module.exports = {
     getComments,
     getAllArticles,
     getArticle,
+    getUsers,
     deleteComment
 }
