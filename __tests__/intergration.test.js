@@ -106,7 +106,7 @@ describe("GET /api/articles/:id/comments", () => {
     test("When returned comments in array should be sorted by created_at ascending (newest first)", () => {
         return request(app).get("/api/articles/1/comments").expect(200).then(result => {
             const returnArray = result.body.comments;
-            expect(returnArray).toBeSorted({key: 'created_at'})
+            expect(returnArray).toBeSorted({ key: 'created_at' })
         })
     })
     test("Given an invalid id type should return error: 400 bad request", () => {
@@ -191,11 +191,79 @@ describe("GET /api", () => {
     })
 })
 describe("POST /api/articles/:articleID/comments", () => {
-    test("Should return a 201 status when passed a correct comment object", () => {
+    test("Should return a 400 status and message no user if invalid username passed", () => {
+        const testComment = {
+            username: "ryan",
+            body: "a comment again"
+        }
+        return request(app).post('/api/articles/1/comments').send(testComment).expect(400).then(result => {
+            expect(result.body.message).toBe("Invalid username")
+        });
+    })
+    test("Should return a 404 status and message no article if passed a nonexistent articleID", () => {
         const testComment = {
             username: "rogersop",
             body: "a comment again"
         }
-        return request(app).post('/api/articles/1/comments').send(testComment).expect(201);
+        return request(app).post('/api/articles/99999/comments').send(testComment).expect(404).then(result => {
+            expect(result.body.message).toBe("No article with this ID")
+        });
+    })
+    test("Should return 400 bad request if comment object passed is invalid", () => {
+        const testComment = {
+            username: "rogersop"
+        }
+        return request(app).post('/api/articles/2/comments').send(testComment).expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        });
+
+    })
+    test("Should return 201 status and the correct post if the request is valid", () => {
+        const testComment = {
+            username: "rogersop",
+            body: "a comment again"
+        }
+        return request(app).post('/api/articles/2/comments').send(testComment).expect(201).then(result => {
+            const comment = result.body.comment[0];
+            expect(comment.comment_id).toBe(19);
+            expect(comment).hasOwnProperty("created_at");
+            expect(comment.body).toBe("a comment again");
+            expect(comment.votes).toBe(0);
+            expect(comment.author).toBe("rogersop");
+            expect(comment.article_id).toBe(2);
+        });
     })
 })
+
+describe('PATCH /api/articles/:articleID', () => {
+    test('should return a database-updated article with incremented votes ', () => {
+        const testVote = {
+            vote_increment: 3
+        }
+        return request(app).patch("/api/articles/2").send(testVote).expect(200).then(result => {
+            const article= result.body.article;
+            expect(typeof article.article_id).toBe("number")
+            expect(typeof article.author).toBe("string")
+            expect(typeof article.title).toBe("string")
+            expect(typeof article.topic).toBe("string")
+            expect(typeof article.created_at).toBe("string")
+            expect(typeof article.article_img_url).toBe("string")
+            expect(typeof article.body).toBe("string")
+            expect(article.votes).toBe(3);
+        })
+    })
+
+    test("Should return bad request if not passed correct format", () => {
+        return request(app).patch("/api/articles/2").send({}).expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request");
+        })
+    })
+    test("Should return invalid article if article doesnt exist", () => {
+        const testVote = {
+            vote_increment: 3
+        }
+        return request(app).patch("/api/articles/99999").send(testVote).expect(404).then(result => {
+            expect(result.body.message).toBe("No article with this ID");
+        })
+    })
+});

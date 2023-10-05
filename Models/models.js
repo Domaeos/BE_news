@@ -2,11 +2,31 @@ const db = require('../db/connection');
 const documentation = require('../endpoints.json');
 const fs = require('fs/promises');
 const format = require('pg-format');
-const convertTimestampToDate = require('../db/seeds/utils');
+
 
 async function getTopicsModel() {
     const { rows: topics } = await db.query("SELECT slug, description FROM topics;")
     return topics;
+}
+
+async function patchArticleModel(articleID, incCount) {
+    const articleQuery = await db.query('SELECT * FROM articles WHERE article_id=$1;', [articleID])
+    if (!articleQuery.rowCount) {
+        throw ({ code: "NOARTICLE" });
+    }
+    if (incCount === undefined) {
+        throw ({ code: "BAD_R" });
+    }
+    const result = await db.query(
+        `
+        UPDATE articles
+        SET votes = votes + $2
+        WHERE article_id = $1
+        RETURNING *;
+      `,
+        [articleID, incCount]
+    )
+    return result.rows[0];
 }
 
 async function getArticleModel(articleID) {
@@ -18,8 +38,20 @@ async function getArticleModel(articleID) {
 }
 
 async function postCommentModel(articleID, commentObj) {
-    console.log(articleID, commentObj);
-    return 0;
+    const { username, body } = commentObj;
+    const userQuery = await db.query('SELECT * FROM users WHERE username=$1;', [commentObj.username])
+    if (!userQuery.rowCount) {
+        throw ({ code: "NOUSER" });
+    }
+    const articleQuery = await db.query('SELECT * FROM articles WHERE article_id=$1;', [articleID])
+    if (!articleQuery.rowCount) {
+        throw ({ code: "NOARTICLE" });
+    }
+    const { rows: comment } = await db.query(`
+    INSERT INTO comments (article_id, body, author)
+    VALUES ($1, $2, $3) RETURNING *;
+    `, [articleID, body, username])
+    return comment;
 }
 
 async function getApiModel() {
@@ -50,5 +82,6 @@ module.exports = {
     getCommentsModel,
     getAllArticlesModel,
     getArticleModel,
-    postCommentModel
+    postCommentModel,
+    patchArticleModel
 }

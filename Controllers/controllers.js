@@ -4,7 +4,8 @@ const {
     getCommentsModel,
     getAllArticlesModel,
     getArticleModel,
-    postCommentModel
+    postCommentModel,
+    patchArticleModel
 } = require('../Models/models');
 
 async function getTopics(req, res, next) {
@@ -15,12 +16,19 @@ async function getTopics(req, res, next) {
         next(err);
     }
 }
+async function patchArticle(req, res, next) {
+    try {
+    const article = await patchArticleModel(req.params.articleID, req.body.vote_increment);
+    res.status(200).send({article});
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function postComment(req, res, next) {
     try {
-        console.log("controller");
-        console.log(req.params.articleID);
-        console.log(req.body)
-        res.status(201).send();
+        const comment = await postCommentModel(req.params.articleID, req.body)
+        res.status(201).send({comment});
     } catch (err) {
         next(err);
     }
@@ -69,5 +77,6 @@ module.exports = {
     getComments,
     getAllArticles,
     getArticle,
-    postComment
+    postComment,
+    patchArticle
 }
