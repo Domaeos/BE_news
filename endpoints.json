@@ -29,6 +29,11 @@
         }
       ]
     }
+  },
+  "DELETE /api/comments/:commentID": {
+    "description": "Deletes a comment by its ID number and returns code 204 on successful delete",
+    "queries": [],
+    "exampleResponse": ""
   }
 
 }
