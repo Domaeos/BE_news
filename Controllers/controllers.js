@@ -14,7 +14,7 @@ async function getTopics(req, res, next) {
     } catch (err) {
         next(err);
     }
-}w
+}
 async function postComment(req, res, next) {
     try {
         console.log("controller");
@@ -22,7 +22,7 @@ async function postComment(req, res, next) {
         console.log(req.body)
         res.status(201).send();
     } catch (err) {
-
+        next(err);
     }
 }
 async function getComments(req, res, next) {
@@ -37,7 +37,7 @@ async function getComments(req, res, next) {
 async function getAllArticles(req, res, next) {
     try {
         const articles = await getAllArticlesModel(req);
-        res.status(200).send({  warticles });
+        res.status(200).send({  articles });
     } catch (err) {
         next(err);
     }

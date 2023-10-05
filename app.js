@@ -24,7 +24,6 @@ app.all("/*", (request, response) => {
 
 
 app.use((err, req, res, next) => {
-    console.log(err);
     if (err.code === "22P02") {
         res.status(400).send({ message: "Bad request" })
     } else {
