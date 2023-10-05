@@ -26,7 +26,7 @@ async function getComments(req, res, next) {
 
 async function getAllArticles(req, res, next) {
     try {
-        const articles = await getAllArticlesModel(req);
+        const articles = await getAllArticlesModel(req.query);
         res.status(200).send({articles});
     } catch(err) {
         next(err);
