@@ -1,6 +1,8 @@
 const db = require('../db/connection');
 const documentation = require('../endpoints.json');
 const fs = require('fs/promises');
+const format = require('pg-format');
+
 
 async function getTopicsModel() {
     const { rows: topics } = await db.query("SELECT slug, description FROM topics;")
@@ -11,16 +13,44 @@ async function getUsersModel() {
     return results.rows;
 }
 
-async function getArticleModel(articleID) {
-    const { rows: results } = await db.query(`
-    SELECT articles.*,
-    COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id ORDER BY articles.created_at DESC;
-        `
-        , [articleID]);
-    if(!results.length) {
-        throw({code: 404})
+async function patchArticleModel(articleID, incCount) {
+    if (incCount === undefined) {
+        throw ({ code: "BAD_R" });
     }
-    return results;     
+    const result = await db.query(
+        `
+        UPDATE articles
+        SET votes = votes + $2
+        WHERE article_id = $1
+        RETURNING *;    
+      `,
+        [articleID, incCount]
+    )
+    if (result.rowCount === 0) {
+        throw({code: "NOARTICLE"})
+    }
+    return result.rows[0];
+}
+
+async function getArticleModel(articleID) {
+    const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
+    if (!results.length) {
+        throw ({ code: 404 })
+    }
+    return results;
+}
+
+async function postCommentModel(articleID, commentObj) {
+    const { username, body } = commentObj;
+    const userQuery = await db.query('SELECT * FROM users WHERE username=$1;', [commentObj.username])
+    if (!userQuery.rowCount) {
+        throw ({ code: "NOUSER" });
+    }
+    const result = await db.query(`
+    INSERT INTO comments (article_id, body, author)
+    VALUES ($1, $2, $3) RETURNING *;
+    `, [articleID, body, username])
+    return result.rows;
 }
 
 async function deleteCommentModel(commentID) {
@@ -39,7 +69,7 @@ async function getApiModel() {
 }
 async function getCommentsModel(articleID) {
     const { rows: comments } = await db.query
-    ("SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at;", [articleID])
+        ("SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at;", [articleID])
     if (!comments.length) {
         throw ({ code: 404 })
     }
@@ -75,6 +105,8 @@ module.exports = {
     getCommentsModel,
     getAllArticlesModel,
     getArticleModel,
+    postCommentModel,
+    patchArticleModel,
     getUsersModel,
     deleteCommentModel
 }
