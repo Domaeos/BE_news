@@ -106,7 +106,7 @@ describe("GET /api/articles/:id/comments", () => {
     test("When returned comments in array should be sorted by created_at ascending (newest first)", () => {
         return request(app).get("/api/articles/1/comments").expect(200).then(result => {
             const returnArray = result.body.comments;
-            expect(returnArray).toBeSorted({key: 'created_at'})
+            expect(returnArray).toBeSorted({ key: 'created_at' })
         })
     })
     test("Given an invalid id type should return error: 400 bad request", () => {
@@ -160,6 +160,30 @@ describe("GET /api/articles/", () => {
             expect(resultArray).toBeSorted({ key: 'created_at', descending: true });
         });
     })
+    test("Should return bad request if topic query is anything other than a string", () => {
+        return request(app).get("/api/articles?topic=123").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        })
+    })
+    test("Should return a 200 if passed valid topic but no article with that topic", () => {
+        return request(app).get("/api/articles?topic=paper").expect(200).then(result => {
+            expect(result.body.articles.length).toBe(0)
+        });
+    })
+    test("Should return only articles that match if passed a valid topic query", () => {
+        return request(app).get("/api/articles?topic=cats").expect(200).then(result => {
+            expect(result.body.articles.length).toBe(1)
+        })
+    })
+    test("all returned objects should have the topic of matching query", () => {
+        return request(app).get("/api/articles?topic=mitch").expect(200).then(result => {
+            const articles = result.body.articles;
+            for (const article of articles) {
+                expect(article.topic).toBe("mitch");
+            }
+        })
+    })
+
 })
 describe("GET /api", () => {
     test("Should return status 200 if article exists", () => {

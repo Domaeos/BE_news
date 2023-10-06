@@ -46,12 +46,26 @@ async function getCommentsModel(articleID) {
     return comments;
 }
 
-async function getAllArticlesModel() {
-    const results = await db.query(`
+async function getAllArticlesModel(queryObj) {
+    let sqlStr = `
     SELECT articles.article_id, articles.author, articles.topic, articles.created_at,
 articles.votes, articles.title, articles.article_img_url,
-COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;
-    `);
+COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id
+    `;
+    if (queryObj.topic) {
+        const greenListTopics = {};
+        const validQueryNames = await db.query("SELECT slug FROM topics;")
+        validQueryNames.rows.forEach(topic => {
+            greenListTopics[topic.slug] = topic.slug;
+        })
+        if(greenListTopics[queryObj.topic]) {
+            sqlStr += ` WHERE topic = '${queryObj.topic}'`
+        } else {
+            throw({code: "BAD_R"});
+        }
+    }
+    sqlStr += ` GROUP BY articles.article_id ORDER BY articles.created_at DESC;`
+    const results = await db.query(sqlStr);
     return results.rows;
 
 }

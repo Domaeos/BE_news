@@ -44,9 +44,9 @@ async function deleteComment(req, res, next) {
 
 async function getAllArticles(req, res, next) {
     try {
-        const articles = await getAllArticlesModel(req);
-        res.status(200).send({ articles });
-    } catch (err) {
+        const articles = await getAllArticlesModel(req.query);
+        res.status(200).send({articles});
+    } catch(err) {
         next(err);
     }
 }
