@@ -6,13 +6,31 @@ async function getTopicsModel() {
     const { rows: topics } = await db.query("SELECT slug, description FROM topics;")
     return topics;
 }
+async function getUsersModel() {
+    const results = await db.query("SELECT * FROM users;")
+    return results.rows;
+}
 
 async function getArticleModel(articleID) {
-    const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
+    const { rows: results } = await db.query(`
+    SELECT articles.*,
+    COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id ORDER BY articles.created_at DESC;
+        `
+        , [articleID]);
     if(!results.length) {
         throw({code: 404})
     }
     return results;     
+}
+
+async function deleteCommentModel(commentID) {
+    const result = await db.query(`
+      DELETE FROM comments
+      WHERE comment_id = $1;
+    `,[commentID]);
+    if (!result.rowCount) {
+        throw({code: "22P02"})
+    }
 }
 
 async function getApiModel() {
@@ -56,5 +74,7 @@ module.exports = {
     getApiModel,
     getCommentsModel,
     getAllArticlesModel,
-    getArticleModel
+    getArticleModel,
+    getUsersModel,
+    deleteCommentModel
 }
