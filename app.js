@@ -6,7 +6,9 @@ const {
     getAllArticles,
     getArticle,
     postComment,
-    patchArticle
+    patchArticle,
+    getUsers,
+    deleteComment
 } = require('./Controllers/controllers');
 
 const app = express();
@@ -20,6 +22,8 @@ app.get("/api/articles", getAllArticles)
 app.get("/api/articles/:articleID", getArticle)
 app.post("/api/articles/:articleID/comments", postComment)
 app.patch("/api/articles/:articleID", patchArticle)
+app.get("/api/users", getUsers)
+app.delete("/api/comments/:commentID", deleteComment)
 
 app.all("/*", (request, response) => {
     response.status(404).send({ message: "Not found" })
@@ -47,6 +51,13 @@ app.use((err, req, res, next) => {
     }
 });
 
+app.use((err, req, res, next) => {
+    if (err.code === "BAD_R") {
+        res.status(400).send({ message: "Bad request" })
+    } else {
+        next(err);
+    }
+})
 app.use((err, req, res, next) => {
     if (err.code === "22P02" || err.code === "23502") {
         res.status(400).send({ message: "Bad request" })

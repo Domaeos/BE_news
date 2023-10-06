@@ -8,6 +8,10 @@ async function getTopicsModel() {
     const { rows: topics } = await db.query("SELECT slug, description FROM topics;")
     return topics;
 }
+async function getUsersModel() {
+    const results = await db.query("SELECT * FROM users;")
+    return results.rows;
+}
 
 async function patchArticleModel(articleID, incCount) {
     if (incCount === undefined) {
@@ -49,6 +53,16 @@ async function postCommentModel(articleID, commentObj) {
     return result.rows;
 }
 
+async function deleteCommentModel(commentID) {
+    const result = await db.query(`
+      DELETE FROM comments
+      WHERE comment_id = $1;
+    `,[commentID]);
+    if (!result.rowCount) {
+        throw({code: "22P02"})
+    }
+}
+
 async function getApiModel() {
     const documentation = await fs.readFile(__dirname + "/../endpoints.json", "utf-8");
     return JSON.parse(documentation);
@@ -62,12 +76,26 @@ async function getCommentsModel(articleID) {
     return comments;
 }
 
-async function getAllArticlesModel() {
-    const results = await db.query(`
+async function getAllArticlesModel(queryObj) {
+    let sqlStr = `
     SELECT articles.article_id, articles.author, articles.topic, articles.created_at,
 articles.votes, articles.title, articles.article_img_url,
-COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;
-    `);
+COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id
+    `;
+    if (queryObj.topic) {
+        const greenListTopics = {};
+        const validQueryNames = await db.query("SELECT slug FROM topics;")
+        validQueryNames.rows.forEach(topic => {
+            greenListTopics[topic.slug] = topic.slug;
+        })
+        if(greenListTopics[queryObj.topic]) {
+            sqlStr += ` WHERE topic = '${queryObj.topic}'`
+        } else {
+            throw({code: "BAD_R"});
+        }
+    }
+    sqlStr += ` GROUP BY articles.article_id ORDER BY articles.created_at DESC;`
+    const results = await db.query(sqlStr);
     return results.rows;
 
 }
@@ -78,5 +106,7 @@ module.exports = {
     getAllArticlesModel,
     getArticleModel,
     postCommentModel,
-    patchArticleModel
+    patchArticleModel,
+    getUsersModel,
+    deleteCommentModel
 }

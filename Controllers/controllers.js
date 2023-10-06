@@ -5,7 +5,9 @@ const {
     getAllArticlesModel,
     getArticleModel,
     postCommentModel,
-    patchArticleModel
+    patchArticleMode,
+    getUsersModel,
+    deleteCommentModel
 } = require('../Models/models');
 
 async function getTopics(req, res, next) {
@@ -16,10 +18,19 @@ async function getTopics(req, res, next) {
         next(err);
     }
 }
+
 async function patchArticle(req, res, next) {
     try {
     const article = await patchArticleModel(req.params.articleID, req.body.vote_increment);
     res.status(200).send({article});
+    } catch (err) {
+      next(err);
+    }
+}
+async function getUsers(req, res, next) {
+    try {
+        const users = await getUsersModel();
+        res.status(200).send({users});
     } catch (err) {
         next(err);
     }
@@ -37,6 +48,15 @@ async function getComments(req, res, next) {
     try {
         const comments = await getCommentsModel(req.params.article_id, req.body);
         res.status(200).send({ comments });
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function deleteComment(req, res, next) {
+    try {
+        await deleteCommentModel(req.params.commentID);
+        res.status(204).send();
     } catch (err) {
         next(err);
     }
@@ -78,5 +98,7 @@ module.exports = {
     getAllArticles,
     getArticle,
     postComment,
-    patchArticle
+    patchArticle,
+    getUsers,
+    deleteComment
 }

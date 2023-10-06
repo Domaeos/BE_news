@@ -130,7 +130,6 @@ describe("GET /api/articles/", () => {
             expect(Array.isArray(result.body.articles)).toBe(true);
         })
     })
-    // test here for expected length of returnArray 
     test("Should return each article with correct properties", () => {
         return request(app).get("/api/articles/").expect(200).then(result => {
             const resultArray = result.body.articles;
@@ -161,6 +160,30 @@ describe("GET /api/articles/", () => {
             expect(resultArray).toBeSorted({ key: 'created_at', descending: true });
         });
     })
+    test("Should return bad request if topic query is anything other than a string", () => {
+        return request(app).get("/api/articles?topic=123").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        })
+    })
+    test("Should return a 200 if passed valid topic but no article with that topic", () => {
+        return request(app).get("/api/articles?topic=paper").expect(200).then(result => {
+            expect(result.body.articles.length).toBe(0)
+        });
+    })
+    test("Should return only articles that match if passed a valid topic query", () => {
+        return request(app).get("/api/articles?topic=cats").expect(200).then(result => {
+            expect(result.body.articles.length).toBe(1)
+        })
+    })
+    test("all returned objects should have the topic of matching query", () => {
+        return request(app).get("/api/articles?topic=mitch").expect(200).then(result => {
+            const articles = result.body.articles;
+            for (const article of articles) {
+                expect(article.topic).toBe("mitch");
+            }
+        })
+    })
+
 })
 describe("GET /api", () => {
     test("Should return status 200 if article exists", () => {
@@ -289,3 +312,89 @@ describe('PATCH /api/articles/:articleID', () => {
         })
     })
 });
+});
+
+describe("Get article by ID API", () => {
+    test("Should return status 200 if article exists", () => {
+        return request(app).get("/api/articles/2").expect(200);
+    })
+    test("If article ID exists should return the article object found", () => {
+        return request(app).get("/api/articles/2").expect(200).then(result => {
+            const returnObj = result.body.article[0];
+            expect(typeof returnObj.author).toBe("string");
+            expect(typeof returnObj.title).toBe("string");
+            expect(typeof returnObj.body).toBe("string");
+            expect(typeof returnObj.topic).toBe("string");
+            expect(typeof returnObj.created_at).toBe("string");
+            expect(typeof returnObj.article_img_url).toBe("string");
+            expect(typeof returnObj.article_id).toBe("number");
+            expect(typeof returnObj.votes).toBe("number");
+        })
+    })
+    test("If no match found should return 404 error with message not found", () => {
+        return request(app).get("/api/articles/9999999").expect(404).then(result => {
+            expect(result.body.message).toBe("Match not found");
+        });
+    })
+    test("If passed an invalid search paramater, returns a 400 bad request error", () => {
+        return request(app).get("/api/articles/fifty").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request");
+        });
+    })
+    describe("Add comment count to get article by ID", () => {
+        test("Return objects should have a comment_count property", () => {
+            return request(app).get("/api/articles/2").expect(200).then(result => {
+                expect(result.body.article).hasOwnProperty("comment_count");
+            });
+        })
+        test("Article should have the correct number of comments", () => {
+            return request(app).get("/api/articles/1").expect(200).then(result => {
+                expect(+result.body.article[0].comment_count).toBe(11);
+            });
+        })
+    })
+});
+
+describe("GET /api/users", () => {
+    test("Should return a status code of 200", () => {
+        return request(app).get("/api/users").expect(200);
+    })
+    test("Should return an object with property users", () => {
+        return request(app).get("/api/users").expect(200).then(result => {
+            expect(result.body).hasOwnProperty("users");
+        })
+    })
+    test("Users property should contain an array object with correct length of users", () => {
+        return request(app).get("/api/users").expect(200).then(result => {
+            expect(Array.isArray(result.body.users)).toBe(true);
+            expect(result.body.users.length).toBe(4);
+        })
+    })
+    test("Elements in returned array should contain an object with username, name, avatar_url", () => {
+        return request(app).get("/api/users").expect(200).then(result => {
+            for (const user of result.body.users) {
+                expect(typeof user.username).toBe("string")
+                expect(typeof user.name).toBe("string")
+                expect(typeof user.avatar_url).toBe("string")
+            }
+        })
+    })
+})
+
+
+describe("DELETE /api/comments/:commentID", () => {
+    test ("Should return a bad request if no correct comment ID given", () => {
+        return request(app).delete("/api/comments/fifty").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        });
+    })
+    test("Should return bad request if no comment with the ID passed is found", () => {
+        return request(app).delete("/api/comments/9999999").expect(400).then(result => {
+            expect(result.body.message).toBe("Bad request")
+        });
+    })
+    test("Should return status 204 on successful deletion", () => {
+        return request(app).delete("/api/comments/2").expect(204);  
+    })
+})
+
