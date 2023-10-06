@@ -165,6 +165,11 @@ describe("GET /api/articles/", () => {
             expect(result.body.message).toBe("Bad request")
         })
     })
+    test("Should return a 200 if passed valid topic but no article with that topic", () => {
+        return request(app).get("/api/articles?topic=paper").expect(200).then(result => {
+            expect(result.body.articles.length).toBe(0)
+        });
+    })
     test("Should return only articles that match if passed a valid topic query", () => {
         return request(app).get("/api/articles?topic=cats").expect(200).then(result => {
             expect(result.body.articles.length).toBe(1)
