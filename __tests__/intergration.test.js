@@ -191,7 +191,7 @@ describe("GET /api", () => {
     })
 })
 describe("POST /api/articles/:articleID/comments", () => {
-    test("Should return a 400 status and message no user if invalid username passed", () => {
+    test("Should return a 404 status and message no user if invalid username passed", () => {
         const testComment = {
             username: "ryan",
             body: "a comment again"
@@ -278,6 +278,14 @@ describe('PATCH /api/articles/:articleID', () => {
         }
         return request(app).patch("/api/articles/99999").send(testVote).expect(404).then(result => {
             expect(result.body.message).toBe(`No matching article found`);
+        })
+    })
+    test("Should return bad request if given invalid article ID", () => {
+        const testVote = {
+            vote_increment: 3
+        }
+        return request(app).patch("/api/articles/dave").send(testVote).expect(400).then(result => {
+            expect(result.body.message).toBe(`Bad request`);
         })
     })
 });
