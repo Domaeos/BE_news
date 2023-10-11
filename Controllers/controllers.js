@@ -5,7 +5,7 @@ const {
     getAllArticlesModel,
     getArticleModel,
     postCommentModel,
-    patchArticleMode,
+    patchArticleModel,
     getUsersModel,
     deleteCommentModel
 } = require('../Models/models');

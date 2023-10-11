@@ -1,5 +1,4 @@
 const db = require('../db/connection');
-const documentation = require('../endpoints.json');
 const fs = require('fs/promises');
 const format = require('pg-format');
 

@@ -256,20 +256,21 @@ describe("POST /api/articles/:articleID/comments", () => {
             expect(comment.article_id).toBe(2);
         });
     })
+    test("Should ignore any extra properties sent", () => {
+        const testComment = {
+            username: "rogersop",
+            body: "a comment again",
+            randomProp: 2,
+            anotherRandomExrtaProp: "text"
+        }
+        return request(app).post('/api/articles/2/comments').send(testComment).expect(201).then(result => {
+            const comment = result.body.comment[0];
+            expect(comment).not.hasOwnProperty("randomProp"),
+            expect(comment).not.hasOwnProperty("anotherRandomExtraProp")
+        });
+    })
 })
-test("Should ignore any extra properties sent", () => {
-    const testComment = {
-        username: "rogersop",
-        body: "a comment again",
-        randomProp: 2,
-        anotherRandomExrtaProp: "text"
-    }
-    return request(app).post('/api/articles/2/comments').send(testComment).expect(201).then(result => {
-        const comment = result.body.comment[0];
-        expect(comment).not.hasOwnProperty("randomProp"),
-        expect(comment).not.hasOwnProperty("anotherRandomExtraProp")
-    });
-})
+
 
 
 describe('PATCH /api/articles/:articleID', () => {
@@ -311,7 +312,6 @@ describe('PATCH /api/articles/:articleID', () => {
             expect(result.body.message).toBe(`Bad request`);
         })
     })
-});
 });
 
 describe("Get article by ID API", () => {
