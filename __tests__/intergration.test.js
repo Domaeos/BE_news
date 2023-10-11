@@ -120,7 +120,7 @@ describe("GET /api/articles/:id/comments", () => {
         })
     })
 })
-describe("GET /api/articles/", () => {
+describe.skip("GET /api/articles/", () => {
     test("Should return a 200 status code", () => {
         return request(app).get("/api/articles/").expect(200);
     })

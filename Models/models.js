@@ -32,7 +32,12 @@ async function patchArticleModel(articleID, incCount) {
 }
 
 async function getArticleModel(articleID) {
-    const { rows: results } = await db.query("SELECT * FROM articles WHERE article_id=$1;", [articleID]);
+    const { rows: results } = await db.query(`
+    SELECT articles.*, COUNT(comments.article_id) AS comment_count FROM articles
+  LEFT JOIN comments ON comments.article_id = articles.article_id
+  WHERE articles.article_id = $1
+  GROUP BY comments.article_id, articles.article_id;
+    `, [articleID]);
     if (!results.length) {
         throw ({ code: 404 })
     }

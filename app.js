@@ -29,13 +29,7 @@ app.all("/*", (request, response) => {
     response.status(404).send({ message: "Not found" })
 })
 
-app.use((err, req, res, next) => {
-    if (err.code === "BAD_R") {
-        res.status(400).send({message: "Bad request"})
-    } else {
-        next(err);  
-    }
-})
+
 app.use((err, req, res, next) => {
     if (err.code === "NOUSER") {
         res.status(404).send({ message: "Invalid username" })
@@ -52,14 +46,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    if (err.code === "BAD_R") {
-        res.status(400).send({ message: "Bad request" })
-    } else {
-        next(err);
-    }
-})
-app.use((err, req, res, next) => {
-    if (err.code === "22P02" || err.code === "23502") {
+    if (err.code === "22P02" || err.code === "BAD_R" || err.code === "23502") {
         res.status(400).send({ message: "Bad request" })
     } else {
         next(err);
@@ -67,7 +54,7 @@ app.use((err, req, res, next) => {
 })
 app.use((err, req, res, next) => {
     if (err.code === "23503") {
-        res.status(404).send({ message: err.detail})
+        res.status(404).send({ message: err.detail })
     } else {
         next(err);
     }
@@ -80,7 +67,6 @@ app.use((err, req, res, next) => {
     }
 })
 app.use((err, req, res, next) => {
-    console.log(err);
     res.status(500).send({ message: "Internal server error" });
 })
 
