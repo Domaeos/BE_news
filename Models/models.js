@@ -103,6 +103,7 @@ COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON 
     return results.rows;
 
 }
+
 module.exports = {
     getTopicsModel,
     getApiModel,

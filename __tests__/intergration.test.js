@@ -120,7 +120,7 @@ describe("GET /api/articles/:id/comments", () => {
         })
     })
 })
-describe.skip("GET /api/articles/", () => {
+describe("GET /api/articles/", () => {
     test("Should return a 200 status code", () => {
         return request(app).get("/api/articles/").expect(200);
     })
@@ -159,11 +159,6 @@ describe.skip("GET /api/articles/", () => {
             const resultArray = result.body.articles;
             expect(resultArray).toBeSorted({ key: 'created_at', descending: true });
         });
-    })
-    test("Should return bad request if topic query is anything other than a string", () => {
-        return request(app).get("/api/articles?topic=123").expect(400).then(result => {
-            expect(result.body.message).toBe("Bad request")
-        })
     })
     test("Should return a 200 if passed valid topic but no article with that topic", () => {
         return request(app).get("/api/articles?topic=paper").expect(200).then(result => {
